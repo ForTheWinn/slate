@@ -2,9 +2,6 @@
 title: API Reference
 
 language_tabs: # must be one of https://git.io/vQNgJ
-  - shell
-  - ruby
-  - python
   - javascript
 
 toc_footers:
@@ -19,221 +16,174 @@ search: true
 
 # Introduction
 
-Welcome to the Kittn API! You can use our API to access Kittn API endpoints, which can get information on various cats, kittens, and breeds in our database.
+NLP (NEP-5 Lottery Platform) smart contract has deployed onto NEO blockchain by FTW. This document shows examples of how to trigger the smart contract methods using NEO RPC.
 
-We have language bindings in Shell, Ruby, Python, and JavaScript! You can view code examples in the dark area to the right, and you can switch the programming language of the examples with the tabs in the top right.
+#### Smart contract source code:
 
-This example API documentation page was created with [Slate](https://github.com/lord/slate). Feel free to edit it and use it as a base for your own API's documentation.
+https://github.com/ForTheWinn
 
-# Authentication
+#### Smart contract hash:
 
-> To authorize, use this code:
+356ad59da95f1f6947b8f2c8cc69595fbbd511f3
 
-```ruby
-require 'kittn'
-
-api = Kittn::APIClient.authorize!('meowmeowmeow')
-```
-
-```python
-import kittn
-
-api = kittn.authorize('meowmeowmeow')
-```
-
-```shell
-# With shell, you can just pass the correct header with each request
-curl "api_endpoint_here"
-  -H "Authorization: meowmeowmeow"
-```
+# Invoke
 
 ```javascript
-const kittn = require('kittn');
+import Neon, {u, wallet} from "@cityofzion/neon-js";
 
-let api = kittn.authorize('meowmeowmeow');
+const privateKey = "";
+const invocationScript = "";
+
+const provider = new api.neoscan.instance("MainNet");
+const account = new wallet.Account(privateKey);
+const balance = await provider.getBalance(account.address);
+const config = {
+  api: provider,
+  account,
+  privateKey,
+  balance,
+  script: invocationScript
+};
+
+const result = await Neon.doInvoke(config);
 ```
 
-> Make sure to replace `meowmeowmeow` with your API key.
+In order to trigger the contract, you need to create a raw transaction and send it to the chain. [Neon-js](http://cityofzion.io/neon-js/en/) is a great tool that makes the process easier.
 
-Kittn uses API keys to allow access to the API. You can register a new Kittn API key at our [developer portal](http://example.com/developers).
 
-Kittn expects for the API key to be included in all API requests to the server in a header that looks like the following:
+# Lottery methods
 
-`Authorization: meowmeowmeow`
+## buyLotteryTicket()
+
+```javascript
+import Neon, {u, wallet} from "@cityofzion/neon-js";
+
+const playerAddress = "AbvAMiWRib6GzGZKU1o8QxUntnzhCwjXdS";
+const referralAddress = "AT5Sf5s4cZDqeGZc1aev7ZuBZkSumztTge";
+
+const invocationScript = Neon.create.script({
+ scriptHash: "356ad59da95f1f6947b8f2c8cc69595fbbd511f3",
+ operation: "buyLotteryTicket",
+ args: [
+     u.reverseHex(wallet.getScriptHashFromAddress(playerAddress)),
+     1,
+     1,
+     20,
+     21,
+     22,
+     23,
+     34,
+     u.reverseHex(wallet.getScriptHashFromAddress(referralAddress))
+ ]
+})
+```
+
+This method used to participate the game.
+
+### Parameters
+
+Parameter | Type | Description
+--------- | ------- | -----------
+playerHash | Byte[] | The contract will transfer the fund from player hash to the contract.
+walletType | Int 1 or 2 | If set to 1, the contract will transfer the fund from player hash. The other will be from the users balance of the contract
+ticketType | Int 1, 2 or 3 | 1: 1 FTX, 2: 0.1 CNEO 3: 1 CGAS.
+number1 | Int | Numbers between 1 and 39. The contract will reject if you submit same numbers.
+number2 | Int | "
+number3 | Int | "
+number4 | Int | "
+number5 | Int | "
+referralHash | Byte[] | Reward referral hash will be rewarded 5% of ticket price.
+
+
+## drawLottery()
+
+```javascript
+import Neon, {u, wallet} from "@cityofzion/neon-js";
+
+const casterAddress = "AbvAMiWRib6GzGZKU1o8QxUntnzhCwjXdS";
+
+const invocationScript = Neon.create.script({
+ scriptHash: "356ad59da95f1f6947b8f2c8cc69595fbbd511f3",
+ operation: "drawLottery",
+ args: [
+     u.reverseHex(wallet.getScriptHashFromAddress(casterAddress)),
+ ]
+})
+```
+
+This method draws the current game.
+
+### Parameters
+
+Parameter | Type | Description
+--------- | ----------- | -----------
+casterHash | Byte[] | The contract will reward 5% of total ticket sales of the game whoever triggers first
+
+## verityLotteryTicket()
+
+```javascript
+import Neon, {u, wallet} from "@cityofzion/neon-js";
+
+const casterAddress = "AbvAMiWRib6GzGZKU1o8QxUntnzhCwjXdS";
+const ticketNo = 1;
+
+const invocationScript = Neon.create.script({
+ scriptHash: "356ad59da95f1f6947b8f2c8cc69595fbbd511f3",
+ operation: "verifyLotteryTicket",
+ args: [
+     u.reverseHex(wallet.getScriptHashFromAddress(casterAddress)),
+     ticketNo
+ ]
+})
+```
+
+
+This method verifies lottery tickets.
+
+
+### Parameters
+
+Parameter | Type | Description
+--------- | ----------- | -----------
+casterHash | Byte[] | The contract will reward 5% of the ticket price of being verified.
+ticketNo | Int | It set a ticket number, it verifies the target ticket. If set none, it finds if there are available tickets to verify by using the latest verification height and verifies.
 
 <aside class="notice">
-You must replace <code>meowmeowmeow</code> with your personal API key.
+Vm script should be run before submitting a real transaction in order to check if the target is avaiable or if there are avaiable tickets. 
 </aside>
 
-# Kittens
+### Status getters
 
-## Get All Kittens
+Method | Parameters | Description
+--------- | ----------- | -----------
+casterHash | Byte[] | The contract will reward 5% of the ticket price of being verified.
+ticketNo | Int | It set a ticket number, it verifies the target ticket. If set none, it finds if there are available tickets to verify by using the latest verification height and verifies.
 
-```ruby
-require 'kittn'
 
-api = Kittn::APIClient.authorize!('meowmeowmeow')
-api.kittens.get
-```
-
-```python
-import kittn
-
-api = kittn.authorize('meowmeowmeow')
-api.kittens.get()
-```
-
-```shell
-curl "http://example.com/api/kittens"
-  -H "Authorization: meowmeowmeow"
-```
+## claimLotteryWinningTicket()
 
 ```javascript
-const kittn = require('kittn');
+import Neon, {u, wallet} from "@cityofzion/neon-js";
 
-let api = kittn.authorize('meowmeowmeow');
-let kittens = api.kittens.get();
+const casterAddress = "AbvAMiWRib6GzGZKU1o8QxUntnzhCwjXdS";
+const ticketNo = 1;
+
+const invocationScript = Neon.create.script({
+ scriptHash: "356ad59da95f1f6947b8f2c8cc69595fbbd511f3",
+ operation: "claimLotteryWinningTicket",
+ args: [
+     u.reverseHex(wallet.getScriptHashFromAddress(casterAddress)),
+     ticketNo
+ ]
+})
 ```
 
-> The above command returns JSON structured like this:
+This method claim the prize of winning tickets.
 
-```json
-[
-  {
-    "id": 1,
-    "name": "Fluffums",
-    "breed": "calico",
-    "fluffiness": 6,
-    "cuteness": 7
-  },
-  {
-    "id": 2,
-    "name": "Max",
-    "breed": "unknown",
-    "fluffiness": 5,
-    "cuteness": 10
-  }
-]
-```
 
-This endpoint retrieves all kittens.
+### Parameters
 
-### HTTP Request
-
-`GET http://example.com/api/kittens`
-
-### Query Parameters
-
-Parameter | Default | Description
---------- | ------- | -----------
-include_cats | false | If set to true, the result will also include cats.
-available | true | If set to false, the result will include kittens that have already been adopted.
-
-<aside class="success">
-Remember — a happy kitten is an authenticated kitten!
-</aside>
-
-## Get a Specific Kitten
-
-```ruby
-require 'kittn'
-
-api = Kittn::APIClient.authorize!('meowmeowmeow')
-api.kittens.get(2)
-```
-
-```python
-import kittn
-
-api = kittn.authorize('meowmeowmeow')
-api.kittens.get(2)
-```
-
-```shell
-curl "http://example.com/api/kittens/2"
-  -H "Authorization: meowmeowmeow"
-```
-
-```javascript
-const kittn = require('kittn');
-
-let api = kittn.authorize('meowmeowmeow');
-let max = api.kittens.get(2);
-```
-
-> The above command returns JSON structured like this:
-
-```json
-{
-  "id": 2,
-  "name": "Max",
-  "breed": "unknown",
-  "fluffiness": 5,
-  "cuteness": 10
-}
-```
-
-This endpoint retrieves a specific kitten.
-
-<aside class="warning">Inside HTML code blocks like this one, you can't use Markdown, so use <code>&lt;code&gt;</code> blocks to denote code.</aside>
-
-### HTTP Request
-
-`GET http://example.com/kittens/<ID>`
-
-### URL Parameters
-
-Parameter | Description
---------- | -----------
-ID | The ID of the kitten to retrieve
-
-## Delete a Specific Kitten
-
-```ruby
-require 'kittn'
-
-api = Kittn::APIClient.authorize!('meowmeowmeow')
-api.kittens.delete(2)
-```
-
-```python
-import kittn
-
-api = kittn.authorize('meowmeowmeow')
-api.kittens.delete(2)
-```
-
-```shell
-curl "http://example.com/api/kittens/2"
-  -X DELETE
-  -H "Authorization: meowmeowmeow"
-```
-
-```javascript
-const kittn = require('kittn');
-
-let api = kittn.authorize('meowmeowmeow');
-let max = api.kittens.delete(2);
-```
-
-> The above command returns JSON structured like this:
-
-```json
-{
-  "id": 2,
-  "deleted" : ":("
-}
-```
-
-This endpoint deletes a specific kitten.
-
-### HTTP Request
-
-`DELETE http://example.com/kittens/<ID>`
-
-### URL Parameters
-
-Parameter | Description
---------- | -----------
-ID | The ID of the kitten to delete
-
+Parameter | Type | Description
+--------- | ----------- | -----------
+casterHash | Byte[] |
+ticketNo | Int | It set a ticket number, it claims the target ticket. If set none, it finds available tickets to claim by using the latest claim height.
