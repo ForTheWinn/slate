@@ -13,51 +13,30 @@ search: true
 
 # Introduction
 
-This document shows examples of how to create your lottery using NLP smart contract on NEO blockchain.
+This document shows examples of how to interact with our smart contracts. .
 
-#### Source code:
-
-https://github.com/ForTheWinn/NLP-SmartContract
-
-#### Smart contract hash:
-
-ada839286d23cdfb42eb556461b9382d02b6e12f
-
-#### Contact
-
-Feel free to contact our developers when you have questions. 
-
-Email: info@ftwcoin.io
-
+**Contact**<br>
+Feel free to contact us when you need a support.<br>
+Email: info@ftwcoin.io<br>
 Telegram: https://t.me/ftwcoin
 
-# Invoke
+## Dependencies
 
-```javascript
-import Neon, {u, wallet} from "@cityofzion/neon-js";
+[Neon-js](http://cityofzion.io/neon-js/en/) is a great tool to interact with NEO blockchain.
 
-const privateKey = "";
-const invocationScript = "";
+# NEO2
 
-const provider = new api.neoscan.instance("MainNet");
-const account = new wallet.Account(privateKey);
-const balance = await provider.getBalance(account.address);
-const config = {
-  api: provider,
-  account,
-  privateKey,
-  balance,
-  script: invocationScript
-};
+## FTW-LOTTO
 
-const result = await Neon.doInvoke(config);
-```
+**Smart contract hash**<br>
+ada839286d23cdfb42eb556461b9382d02b6e12f
 
-In order to trigger the contract, you need to create a raw transaction and send it to the chain. 
+**Github**<br>
+[Link](https://github.com/ForTheWinn/smart-contracts/tree/master/contracts/ftw-lotto)
 
-[Neon-js](http://cityofzion.io/neon-js/en/) is a great tool that makes the process easier.
+### Write
 
-## buyLotteryTicket()
+#### buyLotteryTicket()
 
 ```javascript
 import Neon, {u, wallet} from "@cityofzion/neon-js";
@@ -94,10 +73,9 @@ number2 | Int | "
 number3 | Int | "
 number4 | Int | "
 number5 | Int | "
-referralHash | Byte[] | Referral hash will be rewarded 5% of ticket price.
+referralHash? | Byte[] | Referral hash will be rewarded 5% of ticket price.
 
-
-## drawLottery()
+#### drawLottery()
 
 ```javascript
 import Neon, {u, wallet} from "@cityofzion/neon-js";
@@ -115,13 +93,11 @@ const invocationScript = Neon.create.script({
 
 This method draws the current game. Caster must have participated the current FTX lottery to be qualified for this method. The caster will be rewarded 5% of FTX, CNEO and CGAS sales of the game.
 
-### Parameters
-
 Parameter | Type | Description
---------- | ----------- | -----------
-casterHash | Byte[] |
+--------- | ------- | -----------
+casterHash | Byte[] |            
 
-## verityLotteryTicket()
+#### verityLotteryTicket()
 
 ```javascript
 import Neon, {u, wallet} from "@cityofzion/neon-js";
@@ -139,21 +115,14 @@ const invocationScript = Neon.create.script({
 })
 ```
 
-
 This method verifies lottery tickets. Verifier will be rewarded its ticket price that has been verified.
 
 Parameter | Type | Description
 --------- | ----------- | -----------
 verifierHash | Byte[] | 
-ticketNo | Int | It set a ticket number, it verifies the target ticket. If set none, it finds if there are available tickets to verify by using the latest verification height and verifies.
+ticketNo? | Int | It set a ticket number, it verifies the target ticket. If set none, it finds if there are available tickets to verify by using the latest verification height and verifies.
 
-
-### Related method
-
-You should run vm machine with the script before you send the actual transaction to check if the chain returns True state.
-
-
-## claimLotteryWinningTicket()
+#### claimLotteryWinningTicket()
 
 ```javascript
 import Neon, {u, wallet} from "@cityofzion/neon-js";
@@ -173,147 +142,16 @@ const invocationScript = Neon.create.script({
 
 This method claims the prize of winning tickets.
 
-### Parameters
-
 Parameter | Type | Description
 --------- | ----------- | -----------
 casterHash | Byte[] |
-ticketNo | Int | It set a ticket number, it claims the target ticket. If set none, it finds available tickets to claim by using the latest claim height.
+ticketNo? | Int | It set a ticket number, it claims the target ticket. If set none, it finds available tickets to claim by using the latest claim height.
 
+### Read
 
+Methods that fetch blockchain data.
 
-# Lottery entries
-
-> Entry structured like this:
-
-```json
-[
- {
-     "_id": "LHBxJuPTS6JAsKHuk",
-     "gameNo": 41,
-     "ticketNo": 2312,
-     "ticketCurrency": "FTX",
-     "player": "AUNMeF1EsifxHxKSH6h21kwqekbe8bZw3D",
-     "numbers": [
-       19,
-       14,
-       32,
-       28,
-       7
-     ],
-     "isVerified": false,
-     "matched": 0,
-     "isClaimed": false,
-     "prize": 0,
-     "createdAt": 1551344522,
-     "referral": "AbvAMiWRib6GzGZKU1o8QxUntnzhCwjXdS"
-   }
-]
-```
-
-
-## Get all lottery entries
-
-> Returns like this:
-
-```json
-{
-  "page": 1,
-  "page_len": 30,
-  "total": 195,
-  "total_page": 6,
-  "results": [...]
-  }
-```
-
-This endpoint retrieves all entries.
-
-### HTTP Request
-
-`GET https://api.ftwcoin.io/api/lottery/entries/{page}`
-
-
-## Get a specific entry
-
-> Returns like this:
-
-```json
-{
-  "page": 1,
-  "page_len": 30,
-  "total": 195,
-  "total_page": 6,
-  "results": [...]
-  }
-```
-
-This endpoint retrieves a specific entry.
-
-### HTTP Request
-
-`GET https://api.ftwcoin.io/api/lottery/entry/{ticketNo}`
-
-
-## Get entries by address
-
-> Returns like this:
-
-```json
- {
-     "_id": "LHBxJuPTS6JAsKHuk",
-     "gameNo": 41,
-     "ticketNo": 2312,
-     "ticketCurrency": "FTX",
-     "player": "AUNMeF1EsifxHxKSH6h21kwqekbe8bZw3D",
-     "numbers": [
-       19,
-       14,
-       32,
-       28,
-       7
-     ],
-     "isVerified": false,
-     "matched": 0,
-     "isClaimed": false,
-     "prize": 0,
-     "createdAt": 1551344522,
-     "referral": "AbvAMiWRib6GzGZKU1o8QxUntnzhCwjXdS"
-   }
-```
-
-This endpoint retrieves entries by address.
-
-### HTTP Request
-
-`GET https://api.ftwcoin.io/api/lottery/entries/{address}/{page}`
-
-## Get winning entries
-
-> Returns like this:
-
-```json
-{
-  "page": 1,
-  "page_len": 30,
-  "total": 195,
-  "total_page": 6,
-  "results": [...]
-  }
-```
-
-This endpoint retrieves winning entries.
-
-### HTTP Request
-
-`GET https://api.ftwcoin.io/api/lottery/entries/winnings/{page}`
-
-
-
-## Get entries from the chain
-
-You can get and paginate all entries using height keys directly from the chain.
-
-### Entries
+#### getLotteryTicket(ticketNo)
 
 ```javascript
 const totalItems = ""; // current entry height
@@ -351,8 +189,7 @@ const result = await rpc.Query.invokeScript(sb.str).execute(
 return result.result.stack.map(item => item.value);
 ```
 
-It returns serialized array. You need to deserialize it.
-
+It returns serialized data. You can deserialize it using neon-js.
 
 Index | value 
 ----- | -----
@@ -366,17 +203,7 @@ Index | value
 7 | createdAt
 8 | referralHash
 
-### Related methods
-
-getLotteryEntryHeight()
-
-getLotteryTicket(ticketNo)
-
-
-## Get draw results from the chain
-
-You can get and paginate all draw results using height keys directly from the chain.
-
+#### getLotteryResult(gameNo)
 
 ```javascript
 const totalItems = ""; // current entry height
@@ -414,8 +241,11 @@ const result = await rpc.Query.invokeScript(sb.str).execute(
 return result.result.stack.map(item => item.value);
 ```
 
-It returns serialized array. You need to deserialize it.
+Parameter | Type | Description
+--------- | ----------- | -----------
+gameNo | Int | 
 
+It returns serialized data. You need to deserialize it.
 
 Index | value 
 ----- | -----
@@ -426,5 +256,32 @@ Index | value
 9[0] | totalTickets
 9[1] | totalVerifiedTickets
 10 | referralHash
+
+
+#### getLotteryHeight()
+
+#### getLotteryEntryHeight()
+
+#### getLotteryVerificationHeight()
+
+#### getLotteryWinnerHeight()
+
+#### getLotteryClaimHeight()
+
+#### getLotteryWinner(winnerHeight)
+
+#### getLotteryPool(currencyType, gameNo)
+
+#### getLotteryUserBalance(ownerHash, currencyType)
+
+#### getTimeLeft()
+
+#### getLotteryCurrentJackpots()
+
+#### getLotteryParticipation()
+
+#### getLotteryVerification()
+
+#### getLotteryClaim()
 
 
